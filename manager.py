@@ -39,7 +39,7 @@ if sys.argv[1] == 'startapp':
         rmtree(os.path.join(module_dir, "views"))
     module = os.walk(module_dir)
 
-    views = [f"'views/{sub_module}.xml'" for sub_module in sub_modules.values()]
+    views = [f"'views/{sub_module}_view.xml'" for sub_module in sub_modules.values()]
     data = '\n        '.join(views)
 
     general_map = {
