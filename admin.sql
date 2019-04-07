@@ -1,5 +1,5 @@
 psql postgres
-
+sudo -u postgres psql
 \list
 
 \connect name_database

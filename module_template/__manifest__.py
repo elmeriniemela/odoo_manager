@@ -4,11 +4,11 @@
     'version': '0.1',
     'license': 'Other proprietary',
     'category': 'General',
-    'author': 'SprintIT, Elmeri Niemela',
-    'maintainer': 'SprintIT, Elmeri Niemela',
+    'author': 'SprintIT, {author}',
+    'maintainer': 'SprintIT, {author}',
     'website': 'http://www.sprintit.fi',
     'depends': [
-        '{depends}',
+        {dependencies}
     ],
     'data': [
         {data}

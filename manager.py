@@ -1,93 +1,196 @@
-import os, sys
-from shutil import copytree, rmtree, copyfile
+
+import os
+import json
+import glob
+import re
+from contextlib import contextmanager
+from shutil import copyfile
+
+from prompt_toolkit import prompt
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import PathCompleter
+
+@contextmanager
+def quittable():
+    try:
+        yield
+    except (EOFError, KeyboardInterrupt):
+        print("Bye")
+        quit()
+
+
+def ask_dir():
+    Path = PathCompleter(only_directories=True)
+    while True:
+        with quittable():
+            path = prompt('> ', completer=Path)
+        if os.path.isdir(path):
+            return path
+        print("Not a valid directory")
+
+def get_config():
+    CONFIG_FILE = 'config.json'
+    def ask_config():
+        config = {}
+        print("Give the odoo source installation folder")
+        config['odoo_path'] = ask_dir()
+        print("Give the folder where you keep modules")
+        config['addons_path'] = ask_dir()
+        print("Whats your full name, used as the author of the modules?")
+        config['author'] = input()
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f)
+        return config
+
+    if not os.path.isfile('config.json'):
+        return ask_config()
+    with open('config.json') as f:
+        return json.load(f)
+
+
+def load_odoo_data(*paths):
+    print("Loading available odoo modules..")
+    models = set()
+    wizards = set()
+    modules = set()
+    for path in paths:
+        glob_path = os.path.normpath(path + f'/**/*.py')
+        python_files = glob.glob(glob_path, recursive=True)
+        for python_file in python_files:
+            if python_file.endswith('__manifest__.py'):
+                modules.add(os.path.basename(os.path.dirname(python_file)))
+            else:
+                with open(python_file) as f:
+                    results = re.findall(r'''models\.([\w]+)[\w\W]*?[\W]_name = ['"](.*?)['"]''', f.read())
+                    for match in results:
+                        model_type, model_name = match
+                        if model_type == 'Model':
+                            models.add(model_name)
+                        elif model_type == 'TransientModel':
+                            wizards.add(model_name)
+    return modules, models, wizards
+
+
+def input(history=FileHistory('history.txt'), auto_suggest=AutoSuggestFromHistory(), **kwargs):
+    with quittable():
+        return prompt('> ',
+            history=history,
+            auto_suggest=auto_suggest,
+            **kwargs
+        )
+
+def get_set(suggestions=set()):
+    Suggest = WordCompleter(sorted(suggestions), sentence=True)
+    output = set()
+    while 1:
+        answer = input(
+            completer=Suggest
+        )
+        if not answer:
+            break
+        
+        output.add(answer.strip())
+    return output
+
+
+CONFIG = get_config()
+MODULES, MODELS, WIZARDS = load_odoo_data(CONFIG['odoo_path'], CONFIG['addons_path'])
 current_dir = os.path.dirname(os.path.realpath(__file__))
-
-
-ADDONS_PATH = "/home/elmeri/Code/addons12"
 TEMPLATE = os.path.join(current_dir, 'module_template')
 
 
-def sub_module_map(model_name):
+def sub_module_map(model):
     return {
-        '{model_name}': model_name,
-        '{model.name}': model_name.replace('_', '.'),
-        '{ModelName}': ''.join([s.capitalize() for s in model_name.split('_')]),
+        '{model.name}': model.replace('_', '.'),
+        '{model_name}': model.replace('.', '_'),
+        '{ModelName}': ''.join([s.capitalize() for s in model.split('.')]),
     }
 
+def map_files(models, data, template_file, file_ending):
+    path_content = {}
+    for model in models:
+        model_data = data
+        model_map = sub_module_map(model)
+        for find, replace in model_map.items():
+            model_data = model_data.replace(find, replace)
+        model_path = os.path.join(os.path.dirname(template_file), model_map['{model_name}'] + file_ending)
+        path_content[model_path] = model_data
+    return path_content
 
-if sys.argv[1] == 'startapp':
-    assert sys.argv[2], 'Must specify a name for module'
-    module_name = sys.argv[2]
 
-    module_dir = os.path.join(ADDONS_PATH, module_name)
-    assert not os.path.exists(module_dir), 'Module name exists'
-    models = input("Include models? Enter model_name ie. account_invoice ('n' = don't include)\n") or 'account_invoice'
-    wizard = input("Include wizard? Enter model_name ie. download_statements_wizard ('n' = don't include)\n") or 'download_statements_wizard'
-    views = input("Include views? ('n' = don't include)\n")
-    depends = input("Module dependecy? (only one module allowed)\n") or 'account'
-    copytree(TEMPLATE, module_dir)
+
+
+if __name__ == '__main__':
+
+    print("Name of the module")
+    module_name = input()
+
+    print("Any models to inherit? (empty input = done)")
+    models = get_set(suggestions=MODELS)
+    print("Any wizards to inherit? (empty input = done)")
+    wizards = get_set(suggestions=WIZARDS)
+    print("To which of the models or wizards you wish to create views? (empty input = done)")
+    views = get_set(suggestions=models | wizards)
+    print("Any dependencies?")
+    depends = get_set(suggestions=MODULES)
+
     sub_modules = {}
-    if models == 'n':
-        rmtree(os.path.join(module_dir, "models"))
-    elif models:
-        sub_modules.update({'models': models})
-    if wizard == 'n':
-        rmtree(os.path.join(module_dir, "wizard"))
-    elif wizard:
-        sub_modules.update({'wizard': wizard})
-    if views == 'n':
-        rmtree(os.path.join(module_dir, "views"))
-    module = os.walk(module_dir)
+    if models:
+        sub_modules['models'] = models
+    if wizards:
+        sub_modules['wizards'] = wizards
 
-    views = [f"'views/{sub_module}_view.xml'" for sub_module in sub_modules.values()]
-    data = '\n        '.join(views)
+
+    files = glob.glob(TEMPLATE+"/**/*.*", recursive=True)
+
+    views_paths = [f"'views/{sub_module.replace('.', '_')}_view.xml'," for sub_module in views]
+    data = '\n        '.join(views_paths)
 
     general_map = {
         '{title_name}': ' '.join([s.capitalize() for s in module_name.split('_')]),
         '{module_name}': module_name,
-        '{depends}': depends,
+        '{model_imports}': '\n'.join([f"from . import {model.replace('.', '_')}" for model in models]),
+        '{wizard_imports}': '\n'.join([f"from . import {wizard.replace('.', '_')}" for wizard in wizards]),
+        '{dependencies}': '\n        '.join([f"'{module}'," for module in depends]),
+        '{depends}': next(iter(depends)) if depends else 'module',
         '{sub_modules}': ', '.join(sub_modules.keys()),
         '{data}': data,
+        '{author}': CONFIG['author'],
     }
-    for (dirpath, dirnames, filenames) in module:
-        final_map = {}
-        if 'models' in dirpath:
-            final_map.update(sub_module_map(models))
-        if 'wizard' in dirpath:
-            final_map.update(sub_module_map(wizard))
-        final_map.update(general_map)
-
-        if 'view.xml' not in filenames:
-            for filename in filenames:
-                if filename.endswith('.xml') or filename.endswith('.py') or filename.endswith('.rst'):
-                    with open(os.path.join(dirpath, filename)) as f:
-                        content = f.read()
-                        for key, value in final_map.items():
-                            content = content.replace(key, value)
-                    if filename == 'model_name.py':
-                        os.rename(os.path.join(dirpath, filename),
-                                  os.path.join(dirpath, "%s.py" % final_map['{model_name}']))
-                        filename = "%s.py" % final_map['{model_name}']
-                    with open(os.path.join(dirpath, filename), 'w') as f:
-                         f.write(content)  
-        else:
-            for module in sub_modules.values():
-                xml_src = os.path.join(dirpath, module + '_view.xml')
-                copyfile(os.path.join(dirpath, 'view.xml'), xml_src)
-                modelmap = {}
-                modelmap.update(general_map)
-                modelmap.update(sub_module_map(module))
-
-                with open(xml_src) as f:
-                    content = f.read()
-                    for key, value in modelmap.items():
-                        content = content.replace(key, value)
-                with open(xml_src, 'w') as f:
-                        f.write(content)  
-            os.remove(os.path.join(dirpath, 'view.xml'))
+    module_dir = os.path.join(CONFIG['addons_path'], module_name)
+    path_content = {}
+    for file in files[:]:
+        with open(file) as f:
+            try:
+                data = f.read()
+            except UnicodeDecodeError:
+                continue
+            for find, replace in general_map.items():
+                data = data.replace(find, replace)
+            files.remove(file)
+            folder = os.path.basename(os.path.dirname(file))
+            file_name = os.path.basename(file)
+            if folder == 'models' and file_name == 'model_name.py':
+                path_content.update(map_files(models, data, file, '.py'))
+            elif folder == 'wizards' and file_name == 'model_name.py':
+                path_content.update(map_files(wizards, data, file, '.py'))
+            elif folder == 'views' and file_name == 'model_name_view.xml':
+                path_content.update(map_files(wizards, data, file, '_view.xml'))
+            else:
+                path_content[file] = data
 
 
-                    
- 
+    for file_path, data in path_content.items():
+        new_path = os.path.join(module_dir, os.path.relpath(file_path, TEMPLATE))
+        os.makedirs(os.path.dirname(new_path), exist_ok=True)
+        with open(new_path, 'w') as f:
+            f.write(data)
 
+    for remaining_file in files:
+        new_path = os.path.join(module_dir, os.path.relpath(remaining_file, TEMPLATE))
+        os.makedirs(os.path.dirname(new_path), exist_ok=True)
+        copyfile(remaining_file, new_path)
 
+    print(f"Template created at {module_dir}")

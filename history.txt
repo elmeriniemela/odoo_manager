@@ -1,0 +1,165 @@
+
+# 2019-04-07 11:38:33.100472
++Elmeri Niemelä
+
+# 2019-04-07 11:39:58.898997
++sprintit_tes
+
+# 2019-04-07 11:40:04.706523
++account.account
+
+# 2019-04-07 11:40:06.038849
++account.account.tag
+
+# 2019-04-07 11:40:07.543331
++account.account.template
+
+# 2019-04-07 11:40:09.320821
++account.account.type
+
+# 2019-04-07 11:40:14.562229
++account.change.lock.date
+
+# 2019-04-07 11:40:17.234081
++account.financial.html.report.export
+
+# 2019-04-07 11:40:19.742780
++account.account
+
+# 2019-04-07 11:40:20.869450
++account.account.tag
+
+# 2019-04-07 11:40:22.204514
++account.account.template
+
+# 2019-04-07 11:40:25.012560
++account.account.type
+
+# 2019-04-07 11:40:27.010664
++account.change.lock.date
+
+# 2019-04-07 11:40:28.788915
++account.financial.html.report.export
+
+# 2019-04-07 11:40:33.276113
++account
+
+# 2019-04-07 11:40:38.587939
++stock
+
+# 2019-04-07 11:40:43.514381
++stock_account
+
+# 2019-04-07 11:42:29.546497
++sprintit_accounting_modifications
+
+# 2019-04-07 11:42:32.984687
++account.account
+
+# 2019-04-07 11:42:34.616190
++account.account.tag
+
+# 2019-04-07 11:42:35.988286
++account.account.template
+
+# 2019-04-07 11:42:37.431491
++account.account.type
+
+# 2019-04-07 11:42:40.397702
++account.change.lock.date
+
+# 2019-04-07 11:42:42.320059
++account.common.report
+
+# 2019-04-07 11:42:44.561918
++account.financial.html.report.export
+
+# 2019-04-07 11:42:49.989311
++account.account
+
+# 2019-04-07 11:42:51.217565
++account.account.tag
+
+# 2019-04-07 11:42:52.682998
++account.account.template
+
+# 2019-04-07 11:42:54.534374
++account.account.type
+
+# 2019-04-07 11:42:56.165018
++account.change.lock.date
+
+# 2019-04-07 11:42:58.148488
++account.common.report
+
+# 2019-04-07 11:43:03.026893
++account
+
+# 2019-04-07 11:43:07.192964
++stock
+
+# 2019-04-07 11:43:14.578223
++sale
+
+# 2019-04-07 11:48:25.146659
++clear
+
+# 2019-04-07 11:48:31.567077
++account.account
+
+# 2019-04-07 11:48:32.572459
++account.account.tag
+
+# 2019-04-07 11:48:34.110103
++account.account.template
+
+# 2019-04-07 11:48:36.092714
++account.bank.statement.closebalance
+
+# 2019-04-07 11:48:37.189125
++account.bank.statement.import.journal.creation
+
+# 2019-04-07 11:48:38.703921
++account.batch.download.wizard
+
+# 2019-04-07 11:48:43.369161
++account.account
+
+# 2019-04-07 11:48:44.409815
++account.account.tag
+
+# 2019-04-07 11:48:45.732905
++account.account.template
+
+# 2019-04-07 11:48:46.923749
++account.batch.download.wizard
+
+# 2019-04-07 11:48:48.516042
++account.bank.statement.import.journal.creation
+
+# 2019-04-07 11:48:51.605408
++account.bank.statement.closebalance
+
+# 2019-04-07 11:48:55.174075
++account
+
+# 2019-04-07 11:48:57.625888
++s
+
+# 2019-04-07 11:48:59.997887
++ss
+
+# 2019-04-07 11:49:02.608989
++account_3way_match
+
+# 2019-04-07 11:49:05.445834
++sale
+
+# 2019-04-07 11:49:09.297587
++stock
+
+# 2019-04-07 11:49:58.824002
++testi
+
+# 2019-04-07 11:50:08.883473
++account
