@@ -95,10 +95,10 @@ def get_set(suggestions=set()):
     return output
 
 
-CONFIG = get_config()
-MODULES, MODELS, WIZARDS = load_odoo_data(CONFIG['odoo_path'], CONFIG['addons_path'])
 current_dir = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE = os.path.join(current_dir, 'module_template')
+CONFIG = get_config()
+MODULES, MODELS, WIZARDS = load_odoo_data(CONFIG['odoo_path'], CONFIG['addons_path'])
 
 
 def sub_module_map(model):
@@ -119,6 +119,14 @@ def map_files(models, data, template_file, file_ending):
         path_content[model_path] = model_data
     return path_content
 
+def init_map(models, template_file):
+    path_content = {}
+    if models:
+        init_template = "# -*- coding: utf-8 -*-\n\n{}\n"
+        init_content = '\n'.join([f"from . import {model.replace('.', '_')}" for model in models])
+        init_path = os.path.join(os.path.dirname(template_file), '__init__.py')
+        path_content[init_path] = init_template.format(init_content)
+    return path_content
 
 
 
@@ -136,6 +144,12 @@ if __name__ == '__main__':
     print("Any dependencies?")
     depends = get_set(suggestions=MODULES)
 
+
+    # models = set(['account.invoice', 'account.finvoice'])
+    # wizards = set(['download.shit'])
+    # views = set(['account.invoice', 'download.shit'])
+    # depends = set(['finvoice'])
+
     sub_modules = {}
     if models:
         sub_modules['models'] = models
@@ -143,7 +157,7 @@ if __name__ == '__main__':
         sub_modules['wizards'] = wizards
 
 
-    files = glob.glob(TEMPLATE+"/**/*.*", recursive=True)
+    files = glob.glob(TEMPLATE+"/**/*.*", recursive=True) + glob.glob(TEMPLATE+"/**/.*", recursive=True)
 
     views_paths = [f"'views/{sub_module.replace('.', '_')}_view.xml'," for sub_module in views]
     data = '\n        '.join(views_paths)
@@ -151,8 +165,6 @@ if __name__ == '__main__':
     general_map = {
         '{title_name}': ' '.join([s.capitalize() for s in module_name.split('_')]),
         '{module_name}': module_name,
-        '{model_imports}': '\n'.join([f"from . import {model.replace('.', '_')}" for model in models]),
-        '{wizard_imports}': '\n'.join([f"from . import {wizard.replace('.', '_')}" for wizard in wizards]),
         '{dependencies}': '\n        '.join([f"'{module}'," for module in depends]),
         '{depends}': next(iter(depends)) if depends else 'module',
         '{sub_modules}': ', '.join(sub_modules.keys()),
@@ -174,10 +186,12 @@ if __name__ == '__main__':
             file_name = os.path.basename(file)
             if folder == 'models' and file_name == 'model_name.py':
                 path_content.update(map_files(models, data, file, '.py'))
+                path_content.update(init_map(models, file))
             elif folder == 'wizards' and file_name == 'model_name.py':
                 path_content.update(map_files(wizards, data, file, '.py'))
+                path_content.update(init_map(wizards, file))
             elif folder == 'views' and file_name == 'model_name_view.xml':
-                path_content.update(map_files(wizards, data, file, '_view.xml'))
+                path_content.update(map_files(views, data, file, '_view.xml'))
             else:
                 path_content[file] = data
 

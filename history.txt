@@ -163,3 +163,156 @@
 
 # 2019-04-07 11:50:08.883473
 +account
+
+# 2019-04-07 12:32:06.419859
++sprintit_accounting_modifications
+
+# 2019-04-07 12:32:11.357843
++account.account
+
+# 2019-04-07 12:32:23.222376
++account
+
+# 2019-04-07 12:32:25.481498
++sale
+
+# 2019-04-07 12:32:27.691079
++stock
+
+# 2019-04-07 12:36:37.114836
++sprintit_accounting_modifications
+
+# 2019-04-07 12:36:42.392003
++account.account
+
+# 2019-04-07 12:36:44.367576
++account.account.tag
+
+# 2019-04-07 12:36:49.863725
++account.account
+
+# 2019-04-07 12:36:51.622781
++account.account.tag
+
+# 2019-04-07 12:36:56.393760
++account
+
+# 2019-04-07 12:36:58.840601
++sale
+
+# 2019-04-07 12:37:00.754393
++stock
+
+# 2019-04-08 09:27:27.166044
++sprintit_accounting_modifications
+
+# 2019-04-08 09:27:33.481621
++account.account
+
+# 2019-04-08 09:27:34.738997
++account.account.tag
+
+# 2019-04-08 09:27:35.968380
++account.account.template
+
+# 2019-04-08 09:27:37.826120
++account.bank.statement.closebalance
+
+# 2019-04-08 09:27:38.902848
++account.bank.statement.import.journal.creation
+
+# 2019-04-08 09:27:40.196198
++account.batch.download.wizard
+
+# 2019-04-08 09:27:42.374046
++account.account
+
+# 2019-04-08 09:27:43.509247
++account.account.tag
+
+# 2019-04-08 09:27:45.296190
++account.bank.statement.closebalance
+
+# 2019-04-08 09:27:47.763037
++account
+
+# 2019-04-08 09:27:49.268126
++sale
+
+# 2019-04-08 09:27:51.489945
++account_3way_match
+
+# 2019-04-08 11:09:31.029137
++sprintit_accounting_modifications
+
+# 2019-04-08 11:09:36.783073
++account.account
+
+# 2019-04-08 11:09:38.051862
++account.account.tag
+
+# 2019-04-08 11:09:39.497100
++account.account.template
+
+# 2019-04-08 11:09:41.909129
++account.bank.statement.closebalance
+
+# 2019-04-08 11:09:43.831004
++account.batch.download.wizard
+
+# 2019-04-08 11:09:45.453997
++account.change.lock.date
+
+# 2019-04-08 11:09:47.497689
++account.account
+
+# 2019-04-08 11:09:48.470091
++account.account.tag
+
+# 2019-04-08 11:09:49.861787
++account.bank.statement.closebalance
+
+# 2019-04-08 11:09:52.457787
++account
+
+# 2019-04-08 11:09:53.585254
++account_3way_match
+
+# 2019-04-25 17:32:59.431536
++safe_test_databases
+
+# 2019-04-25 17:33:13.979377
++web
+
+# 2019-04-26 11:14:18.241791
++finvoice_merge_lines
+
+# 2019-04-26 11:14:30.498122
++account.invoice
+
+# 2019-04-26 11:14:50.446391
++account.finvoice
+
+# 2019-04-26 11:15:02.782856
++finvoice
+
+# 2019-04-26 14:57:19.294472
++finvoice_merge_lines_test
+
+# 2019-04-26 14:57:22.274244
++account.invoice
+
+# 2019-04-26 14:57:25.300798
++account.finvoice
+
+# 2019-04-26 14:57:38.013654
++finvoice
+
+# 2019-04-26 15:03:03.863437
++finvoice_merge_lines_test
+
+# 2019-04-26 15:04:14.408873
++testingasdasf
+
+# 2019-04-26 15:07:04.525091
++general_map
