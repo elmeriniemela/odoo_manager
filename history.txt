@@ -316,3 +316,102 @@
 
 # 2019-04-26 15:07:04.525091
 +general_map
+
+# 2019-05-06 14:38:57.248314
++sprintit_hr_view_modifications
+
+# 2019-05-06 14:39:31.961214
++hr
+
+# 2019-05-06 14:39:45.311500
++sprintit_hr_view_modifications
+
+# 2019-05-06 14:40:02.550042
++res.partner
+
+# 2019-05-06 14:40:06.530499
++hr
+
+# 2019-05-11 09:01:38.727652
++sprintit_ansible_connector
+
+# 2019-05-11 09:01:56.311031
++test
+
+# 2019-05-11 09:02:12.501858
++sprintit_ansible_connector
+
+# 2019-05-11 09:02:15.954816
++test
+
+# 2019-05-20 10:28:16.326758
++sprintit_invoice_base
+
+# 2019-05-20 10:29:21.505660
++sprintit_accounting_base
+
+# 2019-05-20 10:29:33.793042
++account.invoice
+
+# 2019-05-20 10:29:44.828410
++account.tax
+
+# 2019-05-20 10:30:03.145240
++res.company
+
+# 2019-05-20 10:30:13.121703
++res.config.settings
+
+# 2019-05-20 10:30:47.006568
++account.invoice
+
+# 2019-05-20 10:30:50.103464
++res.config.settings
+
+# 2019-05-20 10:30:56.568568
++account
+
+# 2019-05-20 11:23:44.340416
++uusi_moduuli
+
+# 2019-05-20 11:23:51.580180
++account.account
+
+# 2019-05-20 11:23:54.439530
++account.analytic.default
+
+# 2019-05-20 11:24:07.699670
++account.bank.statement.import.journal.creation
+
+# 2019-05-20 11:24:19.303962
++account.account
+
+# 2019-05-20 11:24:25.337124
++account.bank.statement.import.journal.creation
+
+# 2019-05-20 11:24:51.718643
++account
+
+# 2019-05-23 20:31:01.591742
++sprintit_module_management
+
+# 2019-05-23 20:31:32.398358
++ir.module.module
+
+# 2019-05-23 20:32:06.361968
++module.multi.upgrade
+
+# 2019-05-23 20:32:11.816031
++ir.module.module
+
+# 2019-05-23 20:32:14.380592
++module.multi.upgrade
+
+# 2019-05-24 10:51:38.631568
++account_expense_cost_center
+
+# 2019-05-24 10:51:52.382864
++hr.expense
+
+# 2019-05-24 10:57:45.225654
++hr_expense
