@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 {
-    'name': '{title_name}',
+    'name': '{{ title_name }}',
     'version': '0.1',
     'license': 'Other proprietary',
     'category': 'General',
-    'author': 'SprintIT, {author}',
-    'maintainer': 'SprintIT, {author}',
+    'author': 'SprintIT, {{ author }}',
+    'maintainer': 'SprintIT, {{ author }}',
     'website': 'http://www.sprintit.fi',
     'depends': [
-        {dependencies}
+        {% for dependency in depends %}
+        '{{ dependency }}',
+        {% endfor %}
     ],
     'data': [
-        {data}
+        {% for view in views %}
+        'views/{{ view }}',
+        {% endfor %}
     ],
     'demo': [
     ],

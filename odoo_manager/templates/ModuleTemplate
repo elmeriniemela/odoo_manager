@@ -1,0 +1,25 @@
+{{ name }}:
+{%- if models %}
+    - models:
+    {%- for model in models %}
+        - {{ model }}
+    {%- endfor %}
+{%- endif %}
+{%- if wizards %}
+    - wizards:
+    {%- for wizard in wizards %}
+        - {{ wizard }}
+    {%- endfor %}
+{%- endif %}
+{%- if views %}
+    - views:
+    {%- for view in views %}
+        - {{ view }}
+    {%- endfor %}
+{%- endif %}
+{%- if depends %}
+    - depends:
+    {%- for depend in depends %}
+        - {{ depend }}
+    {%- endfor %}
+{%- endif %}
