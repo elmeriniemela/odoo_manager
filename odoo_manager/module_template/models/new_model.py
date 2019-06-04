@@ -6,5 +6,7 @@ log = logging.getLogger(__name__)
 from odoo import models, fields, api
 
 class {{ ModelName(model) }}(models.Model):
-    _inherit = "{{ model }}"
+    _name = "{{ model }}"
+    _inherit = ['mail.thread']
+    _description = "{{ Title(model) }}"
 

@@ -1,4 +1,4 @@
-{{ title_name }}
+{{ Title(module_name) }}
 ==========================================
 
 Description.

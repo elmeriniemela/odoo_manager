@@ -13,6 +13,10 @@ from jinja2 import Environment, PackageLoader
 CLASS_ENV = Environment(
     loader=PackageLoader('odoo_manager', 'templates'),
 )
+
+MODULE_ENV = Environment(
+    loader=PackageLoader('odoo_manager', 'module_template'),
+)
     
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -54,77 +58,90 @@ class ModuleTemplate:
     def add(self, data_type='models', name='account.invoice'):
         getattr(self, data_type).add(name)
 
-    def write(self):
-        shutil.rmtree(self.module_dir, ignore_errors=True)
-        def sub_module_map(model):
-            return {
-                '{model.name}': model.replace('_', '.'),
-                '{model_name}': model.replace('.', '_'),
-                '{ModelName}': ''.join([s.capitalize() for s in model.split('.')]),
-            }
-        def map_files(models, data, template_file, file_ending):
-            path_content = {}
-            for model in models:
-                model_data = data
-                model_map = sub_module_map(model)
-                for find, replace in model_map.items():
-                    model_data = model_data.replace(find, replace)
-                model_path = os.path.join(os.path.dirname(template_file), model_map['{model_name}'] + file_ending)
-                path_content[model_path] = model_data
-            return path_content
 
-        def init_map(models, template_file):
-            path_content = {}
-            if models:
-                init_template = "# -*- coding: utf-8 -*-\n\n{}\n"
-                init_content = '\n'.join([f"from . import {model.replace('.', '_')}" for model in models])
-                init_path = os.path.join(os.path.dirname(template_file), '__init__.py')
-                path_content[init_path] = init_template.format(init_content)
-            return path_content
-
-
-        env = Environment(
-            loader=PackageLoader('odoo_manager', 'module_template'),
-        )
-
-        general_map = {
-            'title_name': ' '.join([s.capitalize() for s in self.name.split('_')]),
-            'depends'
+    def update_rendering_globals(self):
+        MODULE_ENV.globals.update({
+            'ModelName': lambda model: ''.join([s.capitalize() for s in model.split('.')]),
+            'Title': lambda name: ' '.join([s.capitalize() for s in name.replace('.', '_').split('_')]),
+            'module_name': self.name,
+            'depends': self.depends,
             'first_dependency': next(iter(self.depends)) if self.depends else 'module',
             'sub_modules': [n for n in ['models', 'wizards'] if getattr(self, n)],
             'views': self.views,
             'author': self.config['author'],
-        }
+        })
+
+    def write(self):
+        shutil.rmtree(self.module_dir, ignore_errors=True)
+
+        self.update_rendering_globals()
+        EXISTING_MODELS = self.available_models | self.available_wizards
+
+        def normal_templates(template):
+            specials = [
+                'views',
+                'models',
+                'wizards',
+            ]
+            for special in specials:
+                if special in template:
+                    return False
+            return True
+
+
+        def render_model_templates(models, folder):
+            path_content = {}
+            for model in models:
+                if model in EXISTING_MODELS:
+                    template = MODULE_ENV.get_template('%s/inherit_model.py' % folder)
+                else:
+                    template = MODULE_ENV.get_template('%s/new_model.py' % folder)
+
+                file_name = model.replace('.', '_') + '.py'
+                model_path = '%s/%s' % (folder, file_name)
+                path_content[model_path] = template.render(model=model)
+            init = '%s/__init__.py' % folder
+            path_content[init] = MODULE_ENV.get_template(init).render(models=models)
+            
+            return path_content
+
         path_content = {}
-        for template_name in env.list_templates():
-            try:
-                template = env.get_template(template_name)
-            except UnicodeDecodeError:
-                continue
-            folder = os.path.basename(os.path.dirname(template_name))
-            file_name = os.path.basename(template_name)
-            if folder == 'models' and file_name == 'model_name.py':
-                path_content.update(map_files(self.models, data, template_name, '.py'))
-                path_content.update(init_map(self.models, template_name))
-            elif folder == 'wizards' and file_name == 'model_name.py':
-                path_content.update(map_files(self.wizards, data, template_name, '.py'))
-                path_content.update(init_map(self.wizards, template_name))
-            elif folder == 'views' and file_name == 'model_name_view.xml':
-                path_content.update(map_files(self.views, data, template_name, '_view.xml'))
+
+        if self.models:
+            path_content.update(render_model_templates(self.models, 'models'))
+        if self.wizards:
+            path_content.update(render_model_templates(self.wizards, 'wizards'))
+            
+        for model in self.views:
+            if model in EXISTING_MODELS:
+                template = MODULE_ENV.get_template('views/inherited_view.xml')
             else:
-                path_content[template_name] = data
+                template = MODULE_ENV.get_template('views/new_view.xml')
+            file_name = 'views/' + model.replace('.', '_') + '_view.xml'
+            path_content[file_name] = template.render(model=model)
+            
+
+        remaining_files = set()
+        for template_name in filter(normal_templates, MODULE_ENV.list_templates()):
+            try:
+                template = MODULE_ENV.get_template(template_name)
+            except UnicodeDecodeError:
+                remaining_files.add(template_name)
+                continue
+            path_content[template_name] = template.render()
 
 
         for file_path, data in path_content.items():
-            new_path = os.path.join(self.module_dir, os.path.relpath(file_path, TEMPLATE))
+            new_path = os.path.join(self.module_dir, file_path)
             os.makedirs(os.path.dirname(new_path), exist_ok=True)
             with open(new_path, 'w') as f:
                 f.write(data)
 
-        for remaining_file in files:
-            new_path = os.path.join(self.module_dir, os.path.relpath(remaining_file, TEMPLATE))
-            os.makedirs(os.path.dirname(new_path), exist_ok=True)
-            shutil.copyfile(remaining_file, new_path)
+        for remaining_file in remaining_files:
+            src_path = os.path.join(TEMPLATE, remaining_file)
+            dest_path = os.path.join(self.module_dir, remaining_file)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            shutil.copyfile(src_path, dest_path)
 
         return f"Template created at {self.module_dir}"
 

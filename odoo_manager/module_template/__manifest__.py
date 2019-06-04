@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': '{{ title_name }}',
+    'name': '{{ Title(module_name) }}',
     'version': '0.1',
     'license': 'Other proprietary',
     'category': 'General',
@@ -8,14 +8,14 @@
     'maintainer': 'SprintIT, {{ author }}',
     'website': 'http://www.sprintit.fi',
     'depends': [
-        {% for dependency in depends %}
+        {%- for dependency in depends %}
         '{{ dependency }}',
-        {% endfor %}
+        {%- endfor %}
     ],
     'data': [
-        {% for view in views %}
+        {%- for view in views %}
         'views/{{ view }}',
-        {% endfor %}
+        {%- endfor %}
     ],
     'demo': [
     ],

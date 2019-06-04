@@ -5,5 +5,6 @@ log = logging.getLogger(__name__)
 
 from odoo import models, fields, api
 
-class {{ ModelName }}(models.TransientModel):
-    _inherit = "{{ dot_model_temp_name }}"
+class {{ ModelName(model) }}(models.TransientModel):
+    _inherit = "{{ model }}"
+

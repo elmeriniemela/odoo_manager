@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_{{ model.replace('.', '_') }}_form" model="ir.ui.view">
+            <field name="name">{{ model }}.form.{{ module_name }}</field>
+            <field name="model">{{ model }}</field>
+            <field name="arch" type="xml">
+                <form string="{{ Title(model) }}">
+                        <header>
+                        </header>
+                        <sheet>
+                            <div class="oe_left" style="width: 500px;">
+                                <h1><field name="name"/></h1>
+                            </div>
+                            <notebook>
+                                <page string="Other Info">
+                                    
+                                </page>
+                            </notebook>
+
+                        </sheet>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </div>
+                    </form>
+            </field>
+        </record>
+
+        <record id="view_{{ model.replace('.', '_') }}_tree" model="ir.ui.view">
+            <field name="name">{{ model.replace('.', '_') }}.tree.{{ module_name }}</field>
+            <field name="model">{{ model }}</field>
+            <field name="arch" type="xml">
+                <tree string="{{ Title(model) }}s">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_{{ model.replace('.', '_') }}_filter" model="ir.ui.view">
+            <field name="name">{{ model }}.select.{{ module_name }}</field>
+            <field name="model">{{ model }}</field>
+            <field name="arch" type="xml">
+                <search string="Search {{ Title(model) }}">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_view_{{ model.replace('.', '_') }}" model="ir.actions.act_window">
+            <field name="name">{{ Title(model) }}s</field>
+            <field name="res_model">{{ model }}</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                You dont have any {{ Title(model) }}         
+                </p>
+            </field>
+        </record>
+
+    
+    </data>
+</odoo>
