@@ -1,4 +1,4 @@
-{{ name }}:
+{{ name + ':' }}
 {%- if models %}
     - models:
     {%- for model in models %}

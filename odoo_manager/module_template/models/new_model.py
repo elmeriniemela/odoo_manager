@@ -10,3 +10,5 @@ class {{ ModelName(model) }}(models.Model):
     _inherit = ['mail.thread']
     _description = "{{ Title(model) }}"
 
+    name = fields.Char(required=True)
+

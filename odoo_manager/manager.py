@@ -74,19 +74,18 @@ def display_screen(module_template, additional_text):
     print("2. Add wizards")
     print("3. Add views")
     print("4. Add dependencies")
-    print("5. Write")
+    print("5. Rename module")
+    print("6. Write")
     if additional_text:
+        print()
         print(additional_text)
     print()
 
 
 def main():
-    print("Name of the module? (i.e sprintit_module_name)")
-    module_name = input()
-
     config = get_config()
 
-    template = ModuleTemplate(config, module_name)
+    template = ModuleTemplate(config)
     template.load_odoo_data(config['odoo_path'], config['addons_path'])
 
     command_mapping = {
@@ -94,21 +93,27 @@ def main():
         "2": ("Name of the wizard? (i.e download.bank.statements)", 'wizards', template.available_wizards),
         "3": ("Name of the view's res_model? (i.e account.invoice)", 'views', template.available_wizards | template.available_models),
         "4": ("Name of the dependency? (i.e hr_expense)", 'depends', template.available_modules),
+        "5": ("Name of the module? (i.e sprintit_module_name)", 'name', set()),
     }
-    comment = ""
+    # First ask the name
+    command = '5'
     while True:
-        display_screen(template, comment)
         comment = ""
-        command = input()
         if command in command_mapping:
-            question, data_type, suggestions = command_mapping[command]
+            question, attribute, suggestions = command_mapping[command]
             print(question)
-            data_name = input(completions=suggestions)
-            template.add(data_type, data_name)
-        elif command == "5":
+            value = input(completions=suggestions)
+            res = template.add(attribute, value)
+            if res:
+                comment = res
+
+        elif command == "6":
             comment = template.write()
-        else:
-            comment = "Invalid Command"
+        elif command:
+            comment = "Invalid Command '{}'".format(command)
+
+        display_screen(template, comment)
+        command = input()
 
 
 if __name__ == '__main__':

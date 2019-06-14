@@ -59,6 +59,13 @@
             </field>
         </record>
 
+        <menuitem id="menu_{{ module_name }}" name="{{ Title(module_name) }}" sequence="40"/>
+
+        <menuitem name="{{ Title(model) }}" id="menu_{{ model.replace('.', '_') }}"
+            parent="menu_{{ module_name }}"
+            sequence="10"
+            action="action_view_{{ model.replace('.', '_') }}"/>
+
     
     </data>
 </odoo>

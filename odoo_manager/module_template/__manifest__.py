@@ -13,8 +13,9 @@
         {%- endfor %}
     ],
     'data': [
+        'security/ir.model.access.csv',
         {%- for view in views %}
-        'views/{{ view }}',
+        'views/{{ view.replace('.', '_') }}_view.xml',
         {%- endfor %}
     ],
     'demo': [

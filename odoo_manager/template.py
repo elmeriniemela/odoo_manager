@@ -22,7 +22,6 @@ MODULE_ENV = Environment(
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE = os.path.join(CURRENT_DIR, 'module_template')
 CACHE_FILE = pkg_resources.resource_filename('odoo_manager', 'cache.json')
-open(CACHE_FILE, 'a').close()
 
 
 
@@ -41,12 +40,9 @@ class ModuleTemplate:
     def __repr__(self):
         return f'{self.name}: {self.module_dir}'
     
-    def __init__(self, config, name):
+    def __init__(self, config):
         self.config = config
-        self.name = name
-        self.module_dir = os.path.join(self.config['addons_path'], self.name)
-        if os.path.exists(self.module_dir):
-            raise FileExistsError("Module exists: %s" % self.module_dir)
+        self.name = ''
         self.wizards = set()
         self.models = set()
         self.views = set()
@@ -56,9 +52,38 @@ class ModuleTemplate:
         self.available_wizards = set()
         self.available_modules = set()
 
-    def add(self, data_type='models', name='account.invoice'):
-        getattr(self, data_type).add(name)
+        self.check_constrains()
 
+    def check_constrains(self):
+        if self.name and os.path.exists(self.module_dir):
+            raise FileExistsError("Module exists: %s" % self.module_dir)
+
+    @property
+    def module_dir(self):
+        return os.path.join(self.config['addons_path'], self.name)
+
+    @property
+    def existing_models(self):
+        return self.available_models | self.available_wizards
+
+    @property
+    def new_database_models(self):
+        return self.models - self.available_models
+
+
+    def add(self, attribute='models', value='account.invoice'):
+        current_value = getattr(self, attribute)
+        if isinstance(current_value, set):
+            current_value.add(value)
+            return "{} added to {}".format(value, attribute)
+        else:
+            setattr(self, attribute, value)
+            try:
+                self.check_constrains()
+            except Exception as error:
+                setattr(self, attribute, current_value)
+                return str(error)
+        return '{} is now {}'.format(attribute, value)
 
     def update_rendering_globals(self):
         MODULE_ENV.globals.update({
@@ -70,13 +95,15 @@ class ModuleTemplate:
             'sub_modules': [n for n in ['models', 'wizards'] if getattr(self, n)],
             'views': self.views,
             'author': self.config['author'],
+            'new_models': self.new_database_models,
         })
 
     def write(self):
+        if not self.name:
+            return "Invalid name"
         shutil.rmtree(self.module_dir, ignore_errors=True)
 
         self.update_rendering_globals()
-        EXISTING_MODELS = self.available_models | self.available_wizards
 
         def normal_templates(template):
             specials = [
@@ -93,7 +120,7 @@ class ModuleTemplate:
         def render_model_templates(models, folder):
             path_content = {}
             for model in models:
-                if model in EXISTING_MODELS:
+                if model in self.existing_models:
                     template = MODULE_ENV.get_template('%s/inherit_model.py' % folder)
                 else:
                     template = MODULE_ENV.get_template('%s/new_model.py' % folder)
@@ -114,7 +141,7 @@ class ModuleTemplate:
             path_content.update(render_model_templates(self.wizards, 'wizards'))
             
         for model in self.views:
-            if model in EXISTING_MODELS:
+            if model in self.existing_models:
                 template = MODULE_ENV.get_template('views/inherited_view.xml')
             else:
                 template = MODULE_ENV.get_template('views/new_view.xml')
@@ -150,16 +177,21 @@ class ModuleTemplate:
         print("Loading available odoo modules..")
         modified = dt.datetime.utcfromtimestamp(os.path.getmtime(CACHE_FILE))
         time_passed = dt.datetime.utcnow() - modified
-        if time_passed < dt.timedelta(hours=1):
-            with open(CACHE_FILE) as f:
-                for key, value in json.load(f).items():
-                    self.__dict__[key] = set(value)
+        with open(CACHE_FILE) as f:
+            try:
+                data = json.load(f)
+            except (FileNotFoundError, json.decoder.JSONDecodeError):
+                data = None
+        if data and time_passed < dt.timedelta(hours=1):
+            for key, value in data.items():
+                self.__dict__[key] = set(value)
             return
 
         for path in paths:
             glob_path = os.path.normpath(path + f'/**/*.py')
             python_files = glob.glob(glob_path, recursive=True)
             for python_file in python_files:
+                # TODO: Add models and wizards under correct module to make view inheritance better
                 if python_file.endswith('__manifest__.py'):
                     self.available_modules.add(os.path.basename(os.path.dirname(python_file)))
                     continue

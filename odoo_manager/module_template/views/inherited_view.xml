@@ -3,7 +3,7 @@
     <record id="view_{{ model.replace('.', '_') }}_form" model="ir.ui.view">
         <field name="name">{{ model }}.form.{{ module_name }}</field>
         <field name="model">{{ model }}</field>
-        <field name="inherit_id" ref="{{ depends }}.view_{{ model.replace('.', '_') }}_form"/>
+        <field name="inherit_id" ref="{{ first_dependency }}.view_{{ model.replace('.', '_') }}_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='existing_field']" position="after">
                 <field name="new_field"/>
