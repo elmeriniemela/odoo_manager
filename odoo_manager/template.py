@@ -22,6 +22,7 @@ MODULE_ENV = Environment(
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE = os.path.join(CURRENT_DIR, 'module_template')
 CACHE_FILE = pkg_resources.resource_filename('odoo_manager', 'cache.json')
+open(CACHE_FILE, 'a').close()
 
 
 

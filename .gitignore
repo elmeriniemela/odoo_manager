@@ -3,4 +3,5 @@ venv/**/*
 .vscode/*
 history.txt
 config.json
+cache.json
 *.egg-info

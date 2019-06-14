@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': '{{ Title(module_name) }}',
-    'version': '0.1',
+    'version': '1.0',
     'license': 'Other proprietary',
     'category': 'General',
     'author': 'SprintIT, {{ author }}',

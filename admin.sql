@@ -16,5 +16,6 @@ VALUES (
     (SELECT id AS uid FROM res_users WHERE res_users.login='__system__')
 );
 
+DELETE FROM ir_ui_view WHERE arch_db LIKE '%is_company_account%' AND model='res.partner.bank';
 
 select psa.query from pg_locks as pg left join pg_stat_activity as psa on pg.pid=psa.pid where psa.datname='db_12';
