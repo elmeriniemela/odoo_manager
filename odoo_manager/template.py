@@ -27,18 +27,7 @@ CACHE_FILE = pkg_resources.resource_filename('odoo_manager', 'cache.json')
 
 
 class ModuleTemplate:
-
-    def __str__(self):
-        return CLASS_ENV.get_template('ModuleTemplate').render(
-            name=self.name,
-            models=self.models,
-            wizards=self.wizards,
-            views=self.views,
-            depends=self.depends,
-        )
-
-    def __repr__(self):
-        return f'{self.name}: {self.module_dir}'
+    "Container for models and views to be rendered in the module"
     
     def __init__(self, config):
         self.config = config
@@ -53,6 +42,18 @@ class ModuleTemplate:
         self.available_modules = set()
 
         self.check_constrains()
+
+    def __str__(self):
+        return CLASS_ENV.get_template('ModuleTemplate').render(
+            name=self.name,
+            models=self.models,
+            wizards=self.wizards,
+            views=self.views,
+            depends=self.depends,
+        )
+
+    def __repr__(self):
+        return f'{self.name}: {self.module_dir}'
 
     def check_constrains(self):
         if self.name and os.path.exists(self.module_dir):
@@ -175,13 +176,15 @@ class ModuleTemplate:
 
     def load_odoo_data(self, *paths):
         print("Loading available odoo modules..")
-        modified = dt.datetime.utcfromtimestamp(os.path.getmtime(CACHE_FILE))
-        time_passed = dt.datetime.utcnow() - modified
-        with open(CACHE_FILE) as f:
-            try:
+        try:
+            modified = dt.datetime.utcfromtimestamp(os.path.getmtime(CACHE_FILE))
+            with open(CACHE_FILE, 'r') as f:
                 data = json.load(f)
-            except (FileNotFoundError, json.decoder.JSONDecodeError):
-                data = None
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            modified = dt.datetime.utcnow()
+            data = None
+                
+        time_passed = dt.datetime.utcnow() - modified
         if data and time_passed < dt.timedelta(hours=1):
             for key, value in data.items():
                 self.__dict__[key] = set(value)
@@ -196,7 +199,7 @@ class ModuleTemplate:
                     self.available_modules.add(os.path.basename(os.path.dirname(python_file)))
                     continue
                 with open(python_file) as f:
-                    results = re.findall(r'''models\.([\w]+)[\w\W]*?[\W]_name = ['"](.*?)['"]''', f.read())
+                    results = re.findall(r'''models\.([\w]+)[\w\W]*?[\W]_name[\s]*?=[\s]*?['"](.*?)['"]''', f.read())
                 for match in results:
                     model_type, model_name = match
                     if model_type == 'Model':
