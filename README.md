@@ -1,3 +1,8 @@
+# Odoo Manager
+
+Scripts for helping Odoo development.
+
+Great for creating a new module template.
 
 Install instructions:
 
