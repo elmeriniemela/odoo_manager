@@ -25,7 +25,7 @@ VALUES (
     (SELECT id AS uid FROM res_users WHERE res_users.login='__system__')
 );
 
-DELETE FROM ir_ui_view WHERE arch_db LIKE '%is_commercial_entity%' AND model='res.partner';
+DELETE FROM ir_ui_view WHERE arch_db LIKE '%original_date_planned%' AND model='purchase.order';
 
 select psa.query from pg_locks as pg left join pg_stat_activity as psa on pg.pid=psa.pid where psa.datname='tarfi';
 
@@ -44,6 +44,10 @@ SELECT id, company_id, acc_number FROM res_partner_bank WHERE id in (
 );
 
 
+UPDATE ansible_variable
+SET value='{{ odoo_service_name }}.conf'
+WHERE value='{{ supervisor_odoo_instance }}.conf';
+
 SELECT pg_terminate_backend(pg_stat_activity.pid)
 FROM pg_stat_activity
 WHERE pg_stat_activity.datname = 'tarfi'
@@ -52,17 +56,62 @@ WHERE pg_stat_activity.datname = 'tarfi'
 
 UPDATE account_invoice SET partner_bank_id=NULL WHERE company_id != (SELECT company_id FROM res_partner_bank WHERE id = account_invoice.partner_bank_id) AND state='draft';
 
+;
+COPY (select psa.query from pg_locks as pg left join pg_stat_activity as psa on pg.pid=psa.pid where psa.datname='tarfi')
+TO '/tmp/update_locks.csv' WITH CSV HEADER DELIMITER ';';
 
 
-COPY res_partner(id,name,city,email,street,phone,credit_limit,einvoice_address,einvoice_operator,is_company,customer,supplier,vat,invoice_merging,invoice_merging_group_by,invoicing_day_monthly_first,invoicing_day_monthly_mid,invoicing_day_monthly_last,invoicing_day_weekly,invoicing_day,ref,invoice_delivery,type,country_id,vendor_invoice_default_account_id,parent_id)
+SELECT id, company_id FROM res_partner_bank WHERE sanitized_acc_number IN (
+    SELECT sanitized_acc_number FROM res_partner_bank GROUP BY sanitized_acc_number, company_id HAVING count(sanitized_acc_number) > 1
+) ORDER BY sanitized_acc_number, factoring_account DESC;
+
+SELECT sanitized_acc_number FROM res_partner_bank GROUP BY sanitized_acc_number, company_id, partner_id HAVING count(sanitized_acc_number) > 1;
+
+
+SELECT name FROM res_partner GROUP BY vat, company_id HAVING count(name) > 1;
+
+
+WITH cte AS (
+    SELECT 
+        company_id, 
+        sanitized_acc_number, 
+        ROW_NUMBER() OVER (
+            PARTITION BY company_id,sanitized_acc_number
+            ORDER BY company_id,sanitized_acc_number) rownum
+    FROM 
+        res_partner_bank
+) 
+SELECT 
+  * 
+FROM 
+    cte 
+WHERE 
+    rownum > 1;
+
+
+COPY res_partner(id,name,user_id,city,email,street,phone,credit_limit,einvoice_address,einvoice_operator,is_company,customer,supplier,vat,invoice_merging,invoice_merging_group_by,invoicing_day_monthly_first,invoicing_day_monthly_mid,invoicing_day_monthly_last,invoicing_day_weekly,invoicing_day,ref,invoice_delivery,type,country_id,vendor_invoice_default_account_id,parent_id)
 TO '/tmp/res_partner.csv' WITH CSV HEADER DELIMITER ';';
 
 
-COPY (SELECT id,name,res_id,value_reference FROM ir_property WHERE name='property_product_pricelist';)
+\copy (select * from crspa.dsf where date > '2008-01-01') TO '~/out.csv' WITH CSV HEADER DELIMITER ';';
+
+\copy staging_assets FROM ‘~/Practice_Data/psql_pipe_tally.csv’ WITH DELIMITER ‘,’ CSV HEADER;
+
+COPY (SELECT id,name,res_id,value_reference FROM ir_property WHERE name='property_product_pricelist' OR name='property_payment_term_id')
 TO '/tmp/ir_property.csv' WITH CSV HEADER DELIMITER ';';
 
 COPY product_pricelist(id,name,code)
 TO '/tmp/product_pricelist.csv' WITH CSV HEADER DELIMITER ';';
+
+COPY account_payment_term(id,name)
+TO '/tmp/account_payment_term.csv' WITH CSV HEADER DELIMITER ';';
+
+
+
+
+
+
+
 
 COPY (select message from ir_logging where func='Merge invoices setting from children to commercial entity')
 TO '/tmp/merge_invoices.csv' WITH CSV HEADER DELIMITER ';';

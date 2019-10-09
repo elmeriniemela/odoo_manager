@@ -199,7 +199,11 @@ class ModuleTemplate:
                     self.available_modules.add(os.path.basename(os.path.dirname(python_file)))
                     continue
                 with open(python_file) as f:
-                    results = re.findall(r'''models\.([\w]+)[\w\W]*?[\W]_name[\s]*?=[\s]*?['"](.*?)['"]''', f.read())
+                    try:
+                        results = re.findall(r'''models\.([\w]+)[\w\W]*?[\W]_name[\s]*?=[\s]*?['"](.*?)['"]''', f.read())
+                    except Exception as error:
+                        print(error)
+                        continue
                 for match in results:
                     model_type, model_name = match
                     if model_type == 'Model':
