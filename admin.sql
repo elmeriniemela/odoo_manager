@@ -11,7 +11,7 @@ UPDATE res_users SET login='admin' WHERE login='catchall@tarfi.fi';
 UPDATE res_users SET password='$pbkdf2-sha512$25000$zvkfQ6iVEiLk/N/7n5NSqg$0TyLtKt/O.Ma/TOvWJYcNsrR7v8xSA7FKBpmCjRHHpewAbz8GtDHQvCHINL7gqEhHoCegAJJe8V9DdDK/NzHwg' WHERE login='admin';
 
 
-UPDATE res_users SET password='$pbkdf2-sha512$25000$W8vZW.sdQyilFOJcK2XM2Q$PiuDaZIwfraXAKaFfhNIexIOR5x4Okps2a9KzYXFIzvIJrf4S2X2.ARDU6iEMqHxJZFX856OqoyzXZSbv4kUsQ' WHERE login='jari.pajunen@taloustutkimus.fi';
+UPDATE res_users SET password='$pbkdf2-sha512$25000$o9Q6Z.y9txYCgDCmtJaylg$.jv78wZPU1.JC6.dhyS.2gAntuP/BlDdlVQsAjOe/9X3Wwlo3vuTqoUCtFjGB5EsKq.LZjQ06LanGOXv4kjY8g' WHERE login='nina.vuorela@putinki.fi';
 
 INSERT INTO res_groups_users_rel (gid, uid)
 VALUES (
@@ -25,9 +25,9 @@ VALUES (
     (SELECT id AS uid FROM res_users WHERE res_users.login='__system__')
 );
 
-DELETE FROM ir_ui_view WHERE arch_db LIKE '%original_date_planned%' AND model='purchase.order';
+DELETE FROM ir_ui_view WHERE arch_db LIKE '%delivery_address_mandatory%';
 
-select psa.query from pg_locks as pg left join pg_stat_activity as psa on pg.pid=psa.pid where psa.datname='tarfi';
+select psa.query from pg_locks as pg left join pg_stat_activity as psa on pg.pid=psa.pid where psa.datname='db_11';
 
 
 SELECT sanitized_acc_number, count(*) as lkm FROM res_partner_bank GROUP BY sanitized_acc_number HAVING count(*) > 1;
@@ -48,9 +48,14 @@ UPDATE ansible_variable
 SET value='{{ odoo_service_name }}.conf'
 WHERE value='{{ supervisor_odoo_instance }}.conf';
 
+
+
+-- Kill a postgresql session/connection
+-- ERROR:  database "uusi-kanta-test" is being accessed by other users
+-- DETAIL:  There are 4 other sessions using the database.
 SELECT pg_terminate_backend(pg_stat_activity.pid)
 FROM pg_stat_activity
-WHERE pg_stat_activity.datname = 'tarfi'
+WHERE pg_stat_activity.datname = 'demo-13'
   AND pid <> pg_backend_pid();
 
 
@@ -108,7 +113,8 @@ TO '/tmp/account_payment_term.csv' WITH CSV HEADER DELIMITER ';';
 
 
 
-
+UPDATE ir_config_parameter SET value='2020-01-01 00:00:00' WHERE key='database.expiration_date';
+UPDATE ir_config_parameter SET value='http://localhost:9999' WHERE key='web.base.url';
 
 
 
@@ -163,3 +169,42 @@ FROM
     INNER JOIN res_partner AS partner
         ON sale.partner_id = partner.id
 ;
+
+
+UPDATE res_users SET password='{{ admin_password_hash }}' WHERE login='admin';
+UPDATE res_partner SET country_id=(select id from res_country where code='FI') where id in (select partner_id from res_company);
+UPDATE res_company SET currency_id=(select currency_id from res_country where code='FI')
+
+UPDATE ir_module_module SET state='to upgrade' WHERE name IN ['sprintit_ansible_connector'] AND state='installed';
+
+
+SELECT COUNT(*) FROM ir_module_module WHERE name IN ('sprintit_module_management', 'safe_test_databases') AND state='installed';
+
+
+
+
+UPDATE ir_module_module SET state='to install' WHERE state='uninstalled' AND name in (
+    SELECT name FROM ir_module_module_dependency WHERE module_id IN (SELECT id FROM ir_module_module WHERE state='to install')
+);
+
+
+
+
+SELECT  c.relname,
+        pg_size_pretty(count(*) * 8192) as buffered, round(100.0 * count(*) / (SELECT setting FROM pg_settings WHERE name='shared_buffers')::integer,1) AS buffers_percent,
+        round(100.0 * count(*) * 8192 / pg_relation_size(c.oid),1) AS percent_of_relation,
+        round(100.0 * count(*) * 8192 / pg_table_size(c.oid),1) AS percent_of_table
+FROM    pg_class c
+        INNER JOIN pg_buffercache b
+            ON b.relfilenode = c.relfilenode
+        INNER JOIN pg_database d
+            ON (b.reldatabase = d.oid AND d.datname = current_database())
+GROUP BY c.oid,c.relname
+ORDER BY 3 DESC
+LIMIT 10;
+
+
+
+
+nina.vuorela@putinki.fi
+
