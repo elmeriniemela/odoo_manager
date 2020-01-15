@@ -48,6 +48,7 @@ def ask_dir():
 
 def get_config():
     def ask_config():
+        print("**** CONFIG ('{}') ****".format(CONFIG_FILE))
         config = {}
         print("Give the odoo source installation folder")
         config['odoo_path'] = ask_dir()

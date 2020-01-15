@@ -10,3 +10,6 @@ Install instructions:
 * `cd <this repo>`
 * `pip install -e .`
 
+Usage instructions:
+
+* `odoo_manager` <-- this will start the CLI-interface and ask for config options first time
