@@ -12,7 +12,7 @@ from odoo import models, fields, api
 #Relative imports
 # from . import xyz
 
-log = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class {{ ModelName(model) }}(models.Model):
