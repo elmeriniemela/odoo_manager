@@ -4,8 +4,8 @@
     'version': '1.0',
     'license': 'Other proprietary',
     'category': 'General',
-    'author': 'SprintIT, {{ author }}',
-    'maintainer': 'SprintIT, {{ author }}',
+    'author': 'SprintIT Oy, {{ author }}',
+    'maintainer': 'SprintIT Oy, {{ author }}',
     'website': 'http://www.sprintit.fi',
     'depends': [
         {%- for dependency in depends %}
