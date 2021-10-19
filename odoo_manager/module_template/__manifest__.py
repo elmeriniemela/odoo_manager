@@ -18,13 +18,6 @@
         'views/{{ view.replace('.', '_') }}_view.xml',
         {%- endfor %}
     ],
-    'demo': [
-    ],
-    'test': [
-    ],
-    "external_dependencies": { # python pip packages
-    #     'python': ['suds', 'dateutil'],
-    },
     'installable': True,
     'auto_install': False,
  }
