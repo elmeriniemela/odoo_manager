@@ -17,7 +17,7 @@ CLASS_ENV = Environment(
 MODULE_ENV = Environment(
     loader=PackageLoader('odoo_manager', 'module_template'),
 )
-    
+
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE = os.path.join(CURRENT_DIR, 'module_template')
@@ -28,7 +28,7 @@ CACHE_FILE = pkg_resources.resource_filename('odoo_manager', 'cache.json')
 
 class ModuleTemplate:
     "Container for models and views to be rendered in the module"
-    
+
     def __init__(self, config):
         self.config = config
         self.name = ''
@@ -131,7 +131,7 @@ class ModuleTemplate:
                 path_content[model_path] = template.render(model=model)
             init = '%s/__init__.py' % folder
             path_content[init] = MODULE_ENV.get_template(init).render(models=models)
-            
+
             return path_content
 
         path_content = {}
@@ -140,7 +140,7 @@ class ModuleTemplate:
             path_content.update(render_model_templates(self.models, 'models'))
         if self.wizards:
             path_content.update(render_model_templates(self.wizards, 'wizards'))
-            
+
         for model in self.views:
             if model in self.existing_models:
                 template = MODULE_ENV.get_template('views/inherited_view.xml')
@@ -148,7 +148,7 @@ class ModuleTemplate:
                 template = MODULE_ENV.get_template('views/new_view.xml')
             file_name = 'views/' + model.replace('.', '_') + '_view.xml'
             path_content[file_name] = template.render(model=model)
-            
+
 
         remaining_files = set()
         for template_name in filter(normal_templates, MODULE_ENV.list_templates()):
@@ -172,6 +172,7 @@ class ModuleTemplate:
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             shutil.copyfile(src_path, dest_path)
 
+        os.chdir(self.module_dir)
         return f"Template created at {self.module_dir}"
 
     def load_odoo_data(self, *paths):
@@ -183,7 +184,7 @@ class ModuleTemplate:
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             modified = dt.datetime.utcnow()
             data = None
-                
+
         time_passed = dt.datetime.utcnow() - modified
         if data and time_passed < dt.timedelta(hours=1):
             for key, value in data.items():
