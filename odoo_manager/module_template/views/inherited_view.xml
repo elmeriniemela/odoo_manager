@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+
     <record id="form_{{ model.replace('.', '_') }}" model="ir.ui.view">
         <field name="name">{{ module_name }}.</field>
         <field name="model">{{ model }}</field>
@@ -10,4 +11,25 @@
             </xpath>
         </field>
     </record>
+
+    <record id="tree_{{ model.replace('.', '_') }}" model="ir.ui.view">
+        <field name="name">{{ module_name }}.tree_{{ model.replace('.', '_') }}</field>
+        <field name="model">{{ model }}</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='existing_field']" position="after">
+                <field name="new_field"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="search_{{ model.replace('.', '_') }}" model="ir.ui.view">
+        <field name="name">{{ module_name }}.search_{{ model.replace('.', '_') }}</field>
+        <field name="model">{{ model }}</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='existing_field']" position="after">
+                <field name="new_field"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
