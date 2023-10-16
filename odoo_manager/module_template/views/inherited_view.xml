@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_{{ model.replace('.', '_') }}_form" model="ir.ui.view">
-        <field name="name">{{ model }}.form.{{ module_name }}</field>
+    <record id="form_{{ model.replace('.', '_') }}" model="ir.ui.view">
+        <field name="name">{{ module_name }}.</field>
         <field name="model">{{ model }}</field>
-        <field name="inherit_id" ref="{{ first_dependency }}.view_{{ model.replace('.', '_') }}_form"/>
+        <field name="inherit_id" ref="{{ first_dependency }}.form_{{ model.replace('.', '_') }}"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='existing_field']" position="after">
                 <field name="new_field"/>
