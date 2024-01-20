@@ -61,7 +61,7 @@ class ModuleTemplate:
 
     @property
     def module_dir(self):
-        return os.path.join(self.config['addons_path'], self.name)
+        return os.path.join(os.getcwd(), self.name)
 
     @property
     def existing_models(self):
@@ -186,7 +186,7 @@ class ModuleTemplate:
             data = None
 
         time_passed = dt.datetime.utcnow() - modified
-        if data and time_passed < dt.timedelta(hours=1):
+        if data and time_passed < dt.timedelta(weeks=4):
             for key, value in data.items():
                 self.__dict__[key] = set(value)
             return

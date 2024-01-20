@@ -52,8 +52,6 @@ def get_config():
         config = {}
         print("Give the odoo source installation folder")
         config['odoo_path'] = ask_dir()
-        print("Give the folder where you keep modules")
-        config['addons_path'] = ask_dir()
         print("Whats your full name, used as the author of the modules?")
         config['author'] = input()
         with open(CONFIG_FILE, 'w') as f:
@@ -87,7 +85,7 @@ def main():
     config = get_config()
 
     template = ModuleTemplate(config)
-    template.load_odoo_data(config['odoo_path'], config['addons_path'])
+    template.load_odoo_data(config['odoo_path'])
 
     command_mapping = {
         "1": ("Name of the model? (i.e account.invoice)", 'models', template.available_models),
