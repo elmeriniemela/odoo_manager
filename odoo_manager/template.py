@@ -172,7 +172,6 @@ class ModuleTemplate:
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             shutil.copyfile(src_path, dest_path)
 
-        os.chdir(self.module_dir)
         return f"Template created at {self.module_dir}"
 
     def load_odoo_data(self, *paths):
