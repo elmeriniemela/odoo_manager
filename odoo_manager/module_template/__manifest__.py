@@ -6,7 +6,7 @@
     'category': 'General',
     'author': 'SprintIT Oy',
     'maintainer': 'SprintIT Oy',
-    'website': 'http://www.sprintit.fi',
+    'website': 'https://www.sprintit.global',
     'depends': [
         {%- for dependency in depends %}
         '{{ dependency }}',
