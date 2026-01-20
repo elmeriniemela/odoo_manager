@@ -6,7 +6,7 @@ import logging
 # import requests
 
 # Odoo imports
-from odoo import models, fields, api
+from odoo import _, api, exceptions, fields, models
 
 #Relative imports
 # from . import xyz
